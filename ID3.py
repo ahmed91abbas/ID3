@@ -3,7 +3,7 @@ import random
 
 def arrfReader(path):
     attributes = {}
-    #attributesNames = []
+    attributesNames = []
     examples = []
     classifier = ""
     with open(path) as f:
@@ -26,13 +26,15 @@ def arrfReader(path):
             values = line.split(" ")
             attributes[key] = values
             classifier = key
-            #attributesNames.append(key)
+            attributesNames.append(key)
         elif line[0] == '@':
             continue
         else:
             line = line[:-1]
             values = line.split(",")
-            #for value in values:
+            for i in range(len(values) - 1):
+                value = values[i]
+                values[i] = (attributesNames[i], value)
             examples.append(values)
     classifierValues = attributes[classifier]
     attributes.pop(classifier)
@@ -84,4 +86,7 @@ def decision_tree_learning(examples, attributes, parent_examples):
                 print()
 
 
+
 attributes, examples, classifier = arrfReader("weather.arff")
+for i in examples:
+    print(i)

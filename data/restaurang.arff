@@ -1,0 +1,27 @@
+@relation restaurang
+
+@attribute Alt {yes, no}
+@attribute Bar {yes, no}
+@attribute Fri {yes, no}
+@attribute Hun {yes, no}
+@attribute Pat {none, some full}
+@attribute Price {1, 2, 3}
+@attribute Rain {yes, no}
+@attribute Res {yes ,no}
+@attribute Type {french, italian, thai, burger}
+@attribute Est {0-10, 10-30, 30-60, >60}
+@attribute willWait {yes, no}
+
+@data
+yes,no,no,yes,some,3,no,yes,french,0-10,yes
+yes,no,no,yes,full,1,no,no,thai,30-60,no
+no,yes,no,no,some,1,no,no,burger,0-10,yes
+yes,no,yes,yes,full,1,yes,no,thai,10-30,yes
+yes,no,yes,no,full,3,no,yes,french,>60,no
+no,yes,no,yes,some,2,yes,yes, italian,0-10,yes
+no,yes,no,no, none,1,yes,no,burger,0-10,no
+no,no,no,yes,some,2,yes,yes,thai,0-10,yes
+no,yes,yes,no,full,1,yes,no,burger,>60,no
+yes,yes,yes,yes,full,3,no,yes,italian,10-30,no
+no,no,no,no,none,1,no,no,thai,0-10,no
+yes,yes,yes,yes,full,1,no,no,burger,30-60,yes

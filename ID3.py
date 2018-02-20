@@ -42,9 +42,15 @@ def arrfReader(path):
     return attributes, examples, classifierValues
 
 def importance(attributes, examples):
-    key = None
     for key in attributes:
-        key = key
+        if key == "Pat":
+            return key
+    for key in attributes:
+        if key == "Hun":
+            return key
+    for key in attributes:
+        if key == "Type":
+            return key
     return key
 
 def plurality_value(examples, classifier):
@@ -69,20 +75,24 @@ def decision_tree_learning(examples, attributes, parent_examples, classifier):
         classificationList.append(example[len(example)-1])
 
     if not examples: #examples is empty
+        print("examples empty")
         return plurality_value(parent_examples, classifier)
 
-
     elif all(x == classificationList[0] for x in classificationList):
-        return classification[0]
+        print("class")
+        return classificationList[0]
 
     elif not attributes:
+        print("attr empty")
         return plurality_value(examples, classifier)
 
     else:
         a = importance(attributes, examples)
         tree = ""
         attribute_values = copy.deepcopy(attributes[a])
+        #print(a + "     "  + str(attribute_values))
         for v in attribute_values:
+            #print(a + " before " + v)
             exs = []
             for ex in examples:
                 for value in ex:
@@ -91,14 +101,16 @@ def decision_tree_learning(examples, attributes, parent_examples, classifier):
             try:
                 attributes.pop(a)
             except:
-                continue
-            subtree = decision_tree_learning(exs, attributes, parent_examples, classifier)
+                pass
+            subtree = decision_tree_learning(exs, attributes, examples, classifier)
+            #print(a + " afetr " + v)
             tree = tree + str(a) + " = " + str(v) + "\n"
-            tree = tree + str(subtree)
-        print(tree)
-
-
+            tree = tree + "    " + str(subtree) + "\n"
+        return tree
 
 
 attributes, examples, classifier = arrfReader("data//restaurang.arff")
-decision_tree_learning(examples, attributes, examples, classifier)
+# for key, value in attributes.items():
+#     print(key + "   " + str(value))
+a = decision_tree_learning(examples, attributes, examples, classifier)
+print(a)

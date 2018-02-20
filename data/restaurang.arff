@@ -19,7 +19,7 @@ no,yes,no,no,some,1,no,no,burger,0-10,yes
 yes,no,yes,yes,full,1,yes,no,thai,10-30,yes
 yes,no,yes,no,full,3,no,yes,french,>60,no
 no,yes,no,yes,some,2,yes,yes, italian,0-10,yes
-no,yes,no,no, none,1,yes,no,burger,0-10,no
+no,yes,no,no,none,1,yes,no,burger,0-10,no
 no,no,no,yes,some,2,yes,yes,thai,0-10,yes
 no,yes,yes,no,full,1,yes,no,burger,>60,no
 yes,yes,yes,yes,full,3,no,yes,italian,10-30,no

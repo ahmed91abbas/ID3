@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import random
+import copy
 
 def arrfReader(path):
     attributes = {}
@@ -62,31 +63,42 @@ def plurality_value(examples, classifier):
     else:
         return secondValue
 
-def decision_tree_learning(examples, attributes, parent_examples):
+def decision_tree_learning(examples, attributes, parent_examples, classifier):
     classificationList = []
     for example in examples:
         classificationList.append(example[len(example)-1])
 
     if not examples: #examples is empty
-        return plurality_value(parent_examples)
+        return plurality_value(parent_examples, classifier)
 
 
     elif all(x == classificationList[0] for x in classificationList):
         return classification[0]
 
     elif not attributes:
-        return plurality_value(examples)
+        return plurality_value(examples, classifier)
 
     else:
         a = importance(attributes, examples)
         tree = ""
-        for v in attributes[a]:
+        attribute_values = copy.deepcopy(attributes[a])
+        for v in attribute_values:
             exs = []
             for ex in examples:
-                print()
+                for value in ex:
+                    if value[0] == a and value[1] == v:
+                        exs.append(ex)
+            try:
+                attributes.pop(a)
+            except:
+                continue
+            subtree = decision_tree_learning(exs, attributes, parent_examples, classifier)
+            tree = tree + str(a) + " = " + str(v) + "\n"
+            tree = tree + str(subtree)
+        print(tree)
 
 
 
-attributes, examples, classifier = arrfReader("weather.arff")
-for i in examples:
-    print(i)
+
+attributes, examples, classifier = arrfReader("data//restaurang.arff")
+decision_tree_learning(examples, attributes, examples, classifier)

@@ -57,20 +57,22 @@ def importance(attributes, examples):
     return key
 
 def plurality_value(examples, classifier):
-    counter0 = 0
-    counter1 = 0
-    firstValue = classifier[0]
-    secondValue = classifier[1]
+    nbr_values = len(classifier)
+    scores = {}
+    for value in classifier:
+        scores[value] = 0
+
     for example in examples:
-        classification = example[len(example) -1]
-        if(classification == firstValue):
-            counter0 = counter0 + 1
-        else:
-            counter1 = counter1 + 1
-    if counter0 >= counter1:
-        return firstValue
-    else:
-        return secondValue
+        classification_value = example[len(example) -1]
+        scores[classification_value] = scores[classification_value] + 1
+
+    dominating_value = ""
+    max = -1
+    for key, value in scores.items():
+        if value > max:
+            max = value
+            dominating_value = key
+    return dominating_value
 
 def decision_tree_learning(examples, attributes, parent_examples, classifier, indent):
     classificationList = []

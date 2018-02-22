@@ -51,6 +51,9 @@ def importance(attributes, examples):
     for key in attributes:
         if key == "Type":
             return key
+    for key in attributes:
+        if key == "Fri":
+            return key
     return key
 
 def plurality_value(examples, classifier):
@@ -69,26 +72,28 @@ def plurality_value(examples, classifier):
     else:
         return secondValue
 
-def decision_tree_learning(examples, attributes, parent_examples, classifier):
+def decision_tree_learning(examples, attributes, parent_examples, classifier, indent):
     classificationList = []
     for example in examples:
         classificationList.append(example[len(example)-1])
 
     if not examples: #examples is empty
-        print("examples empty")
+        #print("examples empty")
         return plurality_value(parent_examples, classifier)
 
     elif all(x == classificationList[0] for x in classificationList):
-        print("class")
+        #print("class")
         return classificationList[0]
 
     elif not attributes:
-        print("attr empty")
+        #print("attr empty")
         return plurality_value(examples, classifier)
 
     else:
         a = importance(attributes, examples)
+        indent = indent + 1
         tree = ""
+        test = []
         attribute_values = copy.deepcopy(attributes[a])
         #print(a + "     "  + str(attribute_values))
         for v in attribute_values:
@@ -102,15 +107,22 @@ def decision_tree_learning(examples, attributes, parent_examples, classifier):
                 attributes.pop(a)
             except:
                 pass
-            subtree = decision_tree_learning(exs, attributes, examples, classifier)
-            #print(a + " afetr " + v)
-            tree = tree + str(a) + " = " + str(v) + "\n"
-            tree = tree + "    " + str(subtree) + "\n"
-        return tree
+            subtree = decision_tree_learning(exs, attributes, examples, classifier, indent)
+            test.append(str(a) + " = " + str(v))
+            test.append(subtree)
+        return test
 
+def print_tree(node, nbr_indent):
+    indent = "    " * nbr_indent
+    if type(node) != list:
+        if "=" not in node:
+            indent = indent + "    "
+        print(indent + node)
+    else:
+        for n in node:
+            print_tree(n, nbr_indent + 1)
 
 attributes, examples, classifier = arrfReader("data//restaurang.arff")
-# for key, value in attributes.items():
-#     print(key + "   " + str(value))
-a = decision_tree_learning(examples, attributes, examples, classifier)
-print(a)
+tree = decision_tree_learning(examples, attributes, examples, classifier, 0)
+for node in tree:
+    print_tree(node, 0)

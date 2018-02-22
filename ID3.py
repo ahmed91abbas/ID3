@@ -12,20 +12,26 @@ def arrfReader(path):
         f.close()
 
     for line in lines:
+        line = line.replace("\t", " ")
         if line[0] == '%' or line == "\n":
             continue
-        if "@attribute" in line:
+        if "@attribute".lower() in line.lower():
             line = line[:-1]
             whiteSpaceIndex = line.find(" ")
             line = line[whiteSpaceIndex+1:]
             whiteSpaceIndex = line.find(" ")
             key = line[:whiteSpaceIndex]
             line = line[whiteSpaceIndex+1:] #the values are left
-            line = line.replace(",", "")
+            line = line.replace(",", " ")
             line = line.replace("{", "")
             line = line.replace("}", "")
             values = line.split(" ")
-            attributes[key] = values
+            filtered_values = []
+            for i in range(len(values)):
+                value = values[i].replace(" ", "")
+                if value != "":
+                    filtered_values.append(value)
+            attributes[key] = filtered_values
             classifier = key
             attributesNames.append(key)
         elif line[0] == '@':
@@ -34,8 +40,9 @@ def arrfReader(path):
             line = line[:-1]
             values = line.split(",")
             for i in range(len(values) - 1):
-                value = values[i]
+                value = values[i].replace(" ", "")
                 values[i] = (attributesNames[i], value)
+            values[len(values) - 1] = values[len(values) - 1].replace(" ", "")
             examples.append(values)
     classifierValues = attributes[classifier]
     attributes.pop(classifier)
@@ -124,7 +131,7 @@ def print_tree(node, nbr_indent):
         for n in node:
             print_tree(n, nbr_indent + 1)
 
-attributes, examples, classifier = arrfReader("data//restaurang.arff")
+attributes, examples, classifier = arrfReader("data//soybean.arff")
 tree = decision_tree_learning(examples, attributes, examples, classifier, 0)
 for node in tree:
     print_tree(node, 0)

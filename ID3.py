@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import random
 import copy
+import math
 
 def arrfReader(path):
     attributes = {}
@@ -49,19 +50,75 @@ def arrfReader(path):
     return attributes, examples, classifierValues
 
 def importance(attributes, examples):
-    for key in attributes:
-        if key == "Pat":
-            return key
-    for key in attributes:
-        if key == "Hun":
-            return key
-    for key in attributes:
-        if key == "Type":
-            return key
-    for key in attributes:
-        if key == "Fri":
-            return key
-    return key
+    gainList = []
+
+    for attribute in attributes:
+        tupleVal = (attribute, gain(attribute, examples, attributes, ))
+        gainList.append(tupleVal)
+    maxVal = 0
+    for x in gainList:
+        if x[1] > maxVal:
+            maxVal = x[1]
+
+    for x in gainList:
+        if x[1] == maxVal:
+            return x[0]
+    return "ERROR"
+
+
+def gain(attribute, examples, attributes):
+    nbrOfYes = 0
+    nbrOfNo = 0
+
+    for ex in examples:
+        if ex[len(ex) -1] == "yes":
+            nbrOfYes += 1
+        elif ex[len(ex) -1] == "no":
+            nbrOfNo += 1
+        else:
+            print("Tjola")
+
+    return B(nbrOfYes/(nbrOfYes + nbrOfNo)) - remainder(attribute, examples, attributes)
+
+
+
+def remainder(attribute, examples, attributes):
+    try:
+        attributeValues = attributes.get(attribute)
+    except:
+        return 0
+    subsetOfDiffValues = []
+
+    for value in attributeValues:
+
+        tmpList = [] #[value, nbrYes, nbrNo]
+        tmpList.append(value)
+        tmpList.append(0)
+        tmpList.append(0)
+        for ex in examples:
+            for exPair in ex:
+                if exPair[0] == attribute and exPair[1] == value:
+                    if(ex[len(ex) -1] == "yes"):
+                        tmpList[1]  += 1
+                    else:
+                        tmpList[2]  += 1
+        subsetOfDiffValues.append(tmpList)
+
+    sum = 0
+    for triple in subsetOfDiffValues:
+        nbrOfYes = triple[1]
+        nbrOfNo = triple[2]
+        if nbrOfYes > 0:
+            val = (nbrOfYes+nbrOfNo)/(len(examples))*B(nbrOfYes/(nbrOfYes+nbrOfNo))
+            sum += val
+    return sum
+
+
+
+def B(q):
+    if q == 1:
+        return 0
+    return -(q*math.log(q,2) + (1-q)*math.log(1-q,2))
 
 def plurality_value(examples, classifier):
     nbr_values = len(classifier)
@@ -131,7 +188,7 @@ def print_tree(node, nbr_indent):
         for n in node:
             print_tree(n, nbr_indent + 1)
 
-attributes, examples, classifier = arrfReader("data//soybean.arff")
+attributes, examples, classifier = arrfReader("data/restaurang.arff")
 tree = decision_tree_learning(examples, attributes, examples, classifier, 0)
 for node in tree:
     print_tree(node, 0)

@@ -2,6 +2,7 @@
 import random
 import copy
 import math
+import sys
 
 def arrfReader(path):
     attributes = {}
@@ -49,76 +50,76 @@ def arrfReader(path):
     attributes.pop(classifier)
     return attributes, examples, classifierValues
 
-def importance(attributes, examples):
-    gainList = []
+# def importance(attributes, examples):
+#     gainList = []
 
-    for attribute in attributes:
-        tupleVal = (attribute, gain(attribute, examples, attributes, ))
-        gainList.append(tupleVal)
-    maxVal = 0
-    for x in gainList:
-        if x[1] > maxVal:
-            maxVal = x[1]
+#     for attribute in attributes:
+#         tupleVal = (attribute, gain(attribute, examples, attributes, ))
+#         gainList.append(tupleVal)
+#     maxVal = 0
+#     for x in gainList:
+#         if x[1] > maxVal:
+#             maxVal = x[1]
 
-    for x in gainList:
-        if x[1] == maxVal:
-            return x[0]
-    return "ERROR"
-
-
-def gain(attribute, examples, attributes):
-    nbrOfYes = 0
-    nbrOfNo = 0
-
-    for ex in examples:
-        if ex[len(ex) -1] == "yes":
-            nbrOfYes += 1
-        elif ex[len(ex) -1] == "no":
-            nbrOfNo += 1
-        else:
-            print("Tjola")
-
-    return B(nbrOfYes/(nbrOfYes + nbrOfNo)) - remainder(attribute, examples, attributes)
+#     for x in gainList:
+#         if x[1] == maxVal:
+#             return x[0]
+#     return "ERROR"
 
 
+# def gain(attribute, examples, attributes):
+#     nbrOfYes = 0
+#     nbrOfNo = 0
 
-def remainder(attribute, examples, attributes):
-    try:
-        attributeValues = attributes.get(attribute)
-    except:
-        return 0
-    subsetOfDiffValues = []
+#     for ex in examples:
+#         if ex[len(ex) -1] == "yes":
+#             nbrOfYes += 1
+#         elif ex[len(ex) -1] == "no":
+#             nbrOfNo += 1
+#         else:
+#             print("Tjola")
 
-    for value in attributeValues:
-
-        tmpList = [] #[value, nbrYes, nbrNo]
-        tmpList.append(value)
-        tmpList.append(0)
-        tmpList.append(0)
-        for ex in examples:
-            for exPair in ex:
-                if exPair[0] == attribute and exPair[1] == value:
-                    if(ex[len(ex) -1] == "yes"):
-                        tmpList[1]  += 1
-                    else:
-                        tmpList[2]  += 1
-        subsetOfDiffValues.append(tmpList)
-
-    sum = 0
-    for triple in subsetOfDiffValues:
-        nbrOfYes = triple[1]
-        nbrOfNo = triple[2]
-        if nbrOfYes > 0:
-            val = (nbrOfYes+nbrOfNo)/(len(examples))*B(nbrOfYes/(nbrOfYes+nbrOfNo))
-            sum += val
-    return sum
+#     return B(nbrOfYes/(nbrOfYes + nbrOfNo)) - remainder(attribute, examples, attributes)
 
 
 
-def B(q):
-    if q == 1:
-        return 0
-    return -(q*math.log(q,2) + (1-q)*math.log(1-q,2))
+# def remainder(attribute, examples, attributes):
+#     try:
+#         attributeValues = attributes.get(attribute)
+#     except:
+#         return 0
+#     subsetOfDiffValues = []
+
+#     for value in attributeValues:
+
+#         tmpList = [] #[value, nbrYes, nbrNo]
+#         tmpList.append(value)
+#         tmpList.append(0)
+#         tmpList.append(0)
+#         for ex in examples:
+#             for exPair in ex:
+#                 if exPair[0] == attribute and exPair[1] == value:
+#                     if(ex[len(ex) -1] == "yes"):
+#                         tmpList[1]  += 1
+#                     else:
+#                         tmpList[2]  += 1
+#         subsetOfDiffValues.append(tmpList)
+
+#     sum = 0
+#     for triple in subsetOfDiffValues:
+#         nbrOfYes = triple[1]
+#         nbrOfNo = triple[2]
+#         if nbrOfYes > 0:
+#             val = (nbrOfYes+nbrOfNo)/(len(examples))*B(nbrOfYes/(nbrOfYes+nbrOfNo))
+#             sum += val
+#     return sum
+
+
+
+# def B(q):
+#     if q == 1:
+#         return 0
+#     return -(q*math.log(q,2) + (1-q)*math.log(1-q,2))
 
 def plurality_value(examples, classifier):
     nbr_values = len(classifier)
@@ -138,7 +139,45 @@ def plurality_value(examples, classifier):
             dominating_value = key
     return dominating_value
 
-def decision_tree_learning(examples, attributes, parent_examples, classifier, indent):
+def entropy(attribute, examples, classifier):
+    values = attributes[attribute]
+    entropy = 0
+    for value in values:
+        value_total = 0
+        value_frequency = {}
+        for class_value in classifier:
+            value_frequency[class_value] = 0
+        for example in examples:
+            for i in range(len(example) - 1):
+                if example[i][1] == value:
+                    value_total = value_total + 1
+                    class_value = example[len(example) - 1]
+                    value_frequency[class_value] = value_frequency[class_value] + 1
+        p_value = value_total / len(examples)
+        e_value = 0
+        for class_value in classifier:
+            freq = value_frequency[class_value]
+            if freq != 0:
+                x = freq/value_total
+                e_value = e_value - (x * math.log2(x))
+        entropy = entropy + p_value * e_value
+    return entropy
+
+
+def importance(attributes, examples, classifier):
+    attributes_entropy = {}
+    for att in attributes:
+        attributes_entropy[att] = entropy(att, examples, classifier)
+    min_value = sys.maxsize
+    best_choise = ""
+    for key, value in attributes_entropy.items():
+        if value < min_value:
+            min_value = value
+            best_choise = key
+    return best_choise
+
+
+def decision_tree_learning(examples, attributes, parent_examples, classifier):
     classificationList = []
     for example in examples:
         classificationList.append(example[len(example)-1])
@@ -156,10 +195,8 @@ def decision_tree_learning(examples, attributes, parent_examples, classifier, in
         return plurality_value(examples, classifier)
 
     else:
-        a = importance(attributes, examples)
-        indent = indent + 1
-        tree = ""
-        test = []
+        a = importance(attributes, examples, classifier)
+        tree = []
         attribute_values = copy.deepcopy(attributes[a])
         #print(a + "     "  + str(attribute_values))
         for v in attribute_values:
@@ -173,10 +210,10 @@ def decision_tree_learning(examples, attributes, parent_examples, classifier, in
                 attributes.pop(a)
             except:
                 pass
-            subtree = decision_tree_learning(exs, attributes, examples, classifier, indent)
-            test.append(str(a) + " = " + str(v))
-            test.append(subtree)
-        return test
+            subtree = decision_tree_learning(exs, attributes, examples, classifier)
+            tree.append(str(a) + " = " + str(v))
+            tree.append(subtree)
+        return tree
 
 def print_tree(node, nbr_indent):
     indent = "    " * nbr_indent
@@ -189,6 +226,6 @@ def print_tree(node, nbr_indent):
             print_tree(n, nbr_indent + 1)
 
 attributes, examples, classifier = arrfReader("data/restaurang.arff")
-tree = decision_tree_learning(examples, attributes, examples, classifier, 0)
+tree = decision_tree_learning(examples, attributes, examples, classifier)
 for node in tree:
     print_tree(node, 0)
